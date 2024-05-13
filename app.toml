@@ -1,0 +1,12 @@
+[App]
+Name = "ai.h2o.wave.evasao-app"
+Version = "0.0.1"
+Title = "Detecção de evasão escolar com Machine Learning"
+Description = "Modelo MVP de detecção de evasão escolar, elaborado em formato de prova de conceito mínima para demonstração de viabilidade"
+
+[Runtime]
+Module = "src.app_seedpr"
+RoutingMode = "DOMAIN"
+MemoryLimit = "12Gi"
+CPULimit = "6"
+RuntimeVersion = "deb11_py38_wlatest"

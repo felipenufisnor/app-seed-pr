@@ -1,0 +1,10 @@
+h2o_wave==0.25.3
+urllib3==1.26.6
+pandas
+numpy
+faker
+h2o
+isort
+black
+Openpyxl
+datetime
