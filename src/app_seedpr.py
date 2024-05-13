@@ -38,7 +38,7 @@ async def serve(q: Q):
 
 async def initialize_layout(q: Q):
         q.page['meta'] = ui.meta_card(box='',
-                                      theme='h2o-dark')
+                                      theme='kiwi')
 
         q.page['header'] = ui.header_card(box='1 1 11 1',
                 title='Analise Risco de Evasão por Aluno - Secretaria da Educação do Estado',
