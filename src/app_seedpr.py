@@ -38,11 +38,11 @@ async def serve(q: Q):
 
 async def initialize_layout(q: Q):
         q.page['meta'] = ui.meta_card(box='',
-                                      theme='kiwi')
+                                      theme='h2o-dark')
 
         q.page['header'] = ui.header_card(box='1 1 11 1',
                 title='Analise Risco de Evasão por Aluno - Secretaria da Educação do Estado',
-                subtitle='Prova de Conceito para previsão de probabilidade de evasão escolar a partir do histórico de frequência e notas dos alunos do 9° ano e da 1ª série',
+                subtitle='Prova de Conceito para previsão de probabilidade de evasão escolar a partir do histórico de frequência e notas dos alunos de Londrina e Guarapuava',
                 image='https://wave.h2o.ai/img/h2o-logo.svg',
                 # color='transparent'
         )
@@ -54,7 +54,8 @@ class UserInputs:
     aluno: Optional[str] = ''
 
     def reset(self):
-        df_init = pd.read_excel('POC_Alunos_testOOT_predictions.xlsx')
+        # df_init = pd.read_excel('POC_Alunos_testOOT_predictions.xlsx')
+        df_init = pd.read_excel('final.xlsx')
         df_init['CGM'] = df_init['CGM'].astype("string")
 
         init_aluno = list(df_init['CGM'].unique())[0]
@@ -75,7 +76,8 @@ class ClientData:
     veiculo: Optional[List] = None
 
     def read_dados(self, q):
-        df = pd.read_excel('POC_Alunos_testOOT_predictions.xlsx')
+        # df = pd.read_excel('POC_Alunos_testOOT_predictions.xlsx')
+        df = pd.read_excel('final.xlsx')
         df['CGM'] = df['CGM'].astype("string")
         self.dados = df
         self.set_data_info(q)
@@ -109,10 +111,9 @@ async def setup_app(q: Q) -> None:
 
     df = q.user.client_data.dados
     filtered_df = df[(df['CGM'] == q.user.user_inputs.aluno)]
-    filtered_df['Serie'] = filtered_df['Serie'].astype("string")
-    serie = filtered_df['Serie'].values[0]
+    # filtered_df['Serie'] = filtered_df['Serie'].astype("string")
 
-    image = 'https://images.pexels.com/photos/220453/pexels-photo-220453.jpeg?auto=compress&h=750&w=1260'
+    image = 'https://images.nightcafe.studio/jobs/3SO0o4E3vquicLfDRrQX/3SO0o4E3vquicLfDRrQX--2--qoj58.jpg?tr=w-1600,c-at_max'
 
     q.page['side'] = ui.form_card(box='4 2 2 3', items=[
         ui.dropdown(name='aluno_combobox',
@@ -123,37 +124,37 @@ async def setup_app(q: Q) -> None:
                     choices=[ui.choice(name=choice, label=choice) for choice in q.user.client_data.aluno]
         ),
         ui.separator(label=''),
-        ui.persona(title='Erick', subtitle=str(serie), image=image),
+        ui.persona(title='Enzo', image=image),
     ])
 
-    fev = round(filtered_df['FEV'].sum(), 2)
-    mar = round(filtered_df['MAR'].sum(), 2)
-    abr = round(filtered_df['ABR'].sum(), 2)
-    mai = round(filtered_df['MAI'].sum(), 2)
-    jun = round(filtered_df['JUN'].sum(), 2)
-    jul = round(filtered_df['JUL'].sum(), 2)
-    ago = round(filtered_df['AGO'].sum(), 2)
-    set = round(filtered_df['SET'].sum(), 2)
-    out = round(filtered_df['OUT'].sum(), 2)
+    # fev = round(filtered_df['FEV'].sum(), 2)
+    # mar = round(filtered_df['MAR'].sum(), 2)
+    # abr = round(filtered_df['ABR'].sum(), 2)
+    # mai = round(filtered_df['MAI'].sum(), 2)
+    # jun = round(filtered_df['JUN'].sum(), 2)
+    # jul = round(filtered_df['JUL'].sum(), 2)
+    # ago = round(filtered_df['AGO'].sum(), 2)
+    # set = round(filtered_df['SET'].sum(), 2)
+    # out = round(filtered_df['OUT'].sum(), 2)
 
-    q.page['frequencia'] = ui.plot_card(
-    box='4 5 8 3',
-    title='Frequência registrada no ano',
-    data=data('mes freq', 3, rows=[
-                ('Fevereiro', fev),
-                ('Março', mar),
-                ('Abril', abr),
-                ('Maio', mai),
-                ('Junho', jun),
-                ('Julho', jul),
-                ('Agosto', ago),
-                ('Setembro', set),
-                ('Outubro', out),
-    ]),
-    plot=ui.plot([ui.mark(type='line', x='=mes', y='=freq', curve='step',
-                          label='={{intl freq minimum_fraction_digits=2 maximum_fraction_digits=2}}')
-                          ])
-    )
+    # q.page['frequencia'] = ui.plot_card(
+    # box='4 5 8 3',
+    # title='Frequência registrada no ano',
+    # data=data('mes freq', 3, rows=[
+    #             ('Fevereiro', fev),
+    #             ('Março', mar),
+    #             ('Abril', abr),
+    #             ('Maio', mai),
+    #             ('Junho', jun),
+    #             ('Julho', jul),
+    #             ('Agosto', ago),
+    #             ('Setembro', set),
+    #             ('Outubro', out),
+    # ]),
+    # plot=ui.plot([ui.mark(type='line', x='=mes', y='=freq', curve='step',
+    #                       label='={{intl freq minimum_fraction_digits=2 maximum_fraction_digits=2}}')
+    #                       ])
+    # )
 
     prob = filtered_df['Prob_Evasao'].values[0]
 
@@ -162,8 +163,9 @@ async def setup_app(q: Q) -> None:
     title='Probabilidade de evasão',
     value='={{intl foo style="percent" minimum_fraction_digits=2 maximum_fraction_digits=2}}',
     aux_value='={{intl bar style="percent" minimum_fraction_digits=2 maximum_fraction_digits=2}}',
+    plot_color='$red',
     progress=prob,
-    data=dict(foo=prob),
+    data=dict(foo=prob)
     )
 
     rows, columns = get_data_row(q)
@@ -181,59 +183,161 @@ async def setup_app(q: Q) -> None:
                 )
     ])
 
-    edu_fis = round(filtered_df['EDUCACAO FISICA'].sum(), 2)
-    his = round(filtered_df['HISTORIA'].sum(), 2)
-    fil = round(filtered_df['FILOSOFIA'].sum(), 2)
-    fis = round(filtered_df['FISICA'].sum(), 2)
-    bio = round(filtered_df['BIOLOGIA'].sum(), 2)
-    por = round(filtered_df['LINGUA PORTUGUESA'].sum(), 2)
-    qui = round(filtered_df['QUIMICA'].sum(), 2)
-    geo = round(filtered_df['GEOGRAFIA'].sum(), 2)
-    mat = round(filtered_df['MATEMATICA'].sum(), 2)
-    art = round(filtered_df['ARTE'].sum(), 2)
-    cie = round(filtered_df['CIENCIAS'].sum(), 2)
+# IRA_1T_22
+# IPM_1T_22
+# IRA_2T_22
+# IPM_2T_22
+# IRA_3T_22
+# IPM_3T_22
+# IRA_1T_23
+# IPM_1T_23
+# IRA_2T_23
+# IPM_2T_23
+# IRA_3T_23
+# IPM_3T_23
 
-    if serie == '9° ano':
-        q.page['nota_9ano'] = ui.plot_card(
-        box='4 8 8 3',
-        title='Quadro de notas do aluno',
-        data=data('materia nota', 5, rows=[
-                    ('Educação Fisica', edu_fis),
-                    ('História', his),
-                    ('Português', por),
-                    ('Geografia', geo),
-                    ('Matemática', mat),
-                    ('Artes', art),
-                    ('Ciências', cie),
-        ]),
-        plot=ui.plot([ui.mark(type='interval', x='=materia', y='=nota', y_min=0)])
-        )
-    if serie == '1ª série':
-        q.page['nota_1serie'] = ui.plot_card(
-        box='4 8 8 3',
-        title='Quadro de notas do aluno',
-        data=data('materia nota', 5, rows=[
-                    ('Educação Fisica', edu_fis),
-                    ('História', his),
-            ('Filosofia', fil),
-            ('Fisica', fis),
-            ('Biologia', bio),
-                    ('Português', por),
-            ('Quimica', qui),
-                    ('Geografia', geo),
-                    ('Matemática', mat),
-                    ('Artes', art),
-        ]),
-        plot=ui.plot([ui.mark(type='interval', x='=materia', y='=nota', y_min=0)])
-        )
+    # edu_fis = round(filtered_df['EDUCACAO FISICA'].sum(), 2)
+    # his = round(filtered_df['HISTORIA'].sum(), 2)
+    # fil = round(filtered_df['FILOSOFIA'].sum(), 2)
+    # fis = round(filtered_df['FISICA'].sum(), 2)
+    # bio = round(filtered_df['BIOLOGIA'].sum(), 2)
+    # por = round(filtered_df['LINGUA PORTUGUESA'].sum(), 2)
+    # qui = round(filtered_df['QUIMICA'].sum(), 2)
+    # geo = round(filtered_df['GEOGRAFIA'].sum(), 2)
+    # mat = round(filtered_df['MATEMATICA'].sum(), 2)
+    # art = round(filtered_df['ARTE'].sum(), 2)
 
-    shap_df = filtered_df.drop(['Serie',
-                                'Prob_Evasao',
-                                'Predicted(th=0.32138)',
-                                'FEV', 'MAR', 'ABR', 'MAI', 'JUN', 'JUL', 'AGO', 'SET', 'OUT',
-                                'EDUCACAO FISICA', 'HISTORIA', 'FILOSOFIA', 'FISICA', 'BIOLOGIA', 'LINGUA INGLESA', 'LINGUA PORTUGUESA', 'QUIMICA', 'GEOGRAFIA', 'MATEMATICA', 'ARTE', 'CIENCIAS'], axis=1)
+
+    # q.page['nota_1serie'] = ui.plot_card(
+    #     box='4 8 8 3',
+    #     title='Quadro de notas do aluno',
+    #     data=data('materia nota', 5, rows=[
+    #                 ('Educação Fisica', edu_fis),
+    #                 ('História', his),
+    #         ('Filosofia', fil),
+    #         ('Fisica', fis),
+    #         ('Biologia', bio),
+    #                 ('Português', por),
+    #         ('Quimica', qui),
+    #                 ('Geografia', geo),
+    #                 ('Matemática', mat),
+    #                 ('Artes', art),
+    #     ]),
+    #     plot=ui.plot([ui.mark(type='interval', x='=materia', y='=nota', y_min=0)])
+    #     )
+
+    shap_df = filtered_df[[
+    "CGM",
+    "Prob_Evasao",
+    "Resultado.predicted(th=0.34069)",
+    "CodMec",
+    "CodTurma",
+    "IRA_1T_22",
+    "IPM_1T_22",
+    "IRA_2T_22",
+    "IPM_2T_22",
+    "IRA_3T_22",
+    "IPM_3T_22",
+    "IRA_MF_22",
+    "IPM_MF_22",
+    "IRA_1T_23",
+    "IPM_1T_23",
+    "IRA_2T_23",
+    "IPM_2T_23",
+    "IRA_3T_23",
+    "IPM_3T_23",
+    "IRA_MF_23",
+    "IPM_MF_23",
+    "NumTurmas22",
+    "NumTurmas23",
+    "NumEscolas22",
+    "NumEscolas23",
+    "NumDisciplinas22",
+    "NumDisciplinas23",
+    "Idade",
+    "Sexo",
+    "DescNre",
+    "DescMun",
+    "TipoEstab",
+    "Distancia",
+    "Aprov22",
+    "RepFreq22",
+    "RepNota22",
+    "RepNotaFreq22",
+    "SemRegistros22",
+    "contrib_Aprov22",
+    "contrib_Bairro",
+    "contrib_BolsaFamilia",
+    "contrib_CepAluno",
+    "contrib_CepEscola",
+    "contrib_Cgm",
+    "contrib_CodEncam",
+    "contrib_CodMec",
+    "contrib_CodMun",
+    "contrib_CodNre",
+    "contrib_CodTurma",
+    "contrib_CoordX",
+    "contrib_CoordY",
+    "contrib_DataNasc",
+    "contrib_DescEncam",
+    "contrib_DescEscola",
+    "contrib_DescMun",
+    "contrib_DescNre",
+    "contrib_Distancia",
+    "contrib_IPM_1T_22",
+    "contrib_IPM_1T_23",
+    "contrib_IPM_2T_22",
+    "contrib_IPM_2T_23",
+    "contrib_IPM_3T_22",
+    "contrib_IPM_3T_23",
+    "contrib_IPM_MF_22",
+    "contrib_IPM_MF_23",
+    "contrib_IRA_1T_22",
+    "contrib_IRA_1T_23",
+    "contrib_IRA_2T_22",
+    "contrib_IRA_2T_23",
+    "contrib_IRA_3T_22",
+    "contrib_IRA_3T_23",
+    "contrib_IRA_MF_22",
+    "contrib_IRA_MF_23",
+    "contrib_Idade",
+    "contrib_Lat",
+    "contrib_Long",
+    "contrib_MotivoEncerramento",
+    "contrib_MotivoFalta",
+    "contrib_Num",
+    "contrib_NumDisciplinas22",
+    "contrib_NumDisciplinas23",
+    "contrib_NumEscolas22",
+    "contrib_NumEscolas23",
+    "contrib_NumTurmas22",
+    "contrib_NumTurmas23",
+    "contrib_RepFreq22",
+    "contrib_RepNota22",
+    "contrib_RepNotaFreq22",
+    "contrib_Rua",
+    "contrib_SemRegistros22",
+    "contrib_Serie",
+    "contrib_Sexo",
+    "contrib_TFM_22",
+    "contrib_TFM_23",
+    "contrib_TF_1T_22",
+    "contrib_TF_1T_23",
+    "contrib_TF_2T_22",
+    "contrib_TF_2T_23",
+    "contrib_TF_3T_22",
+    "contrib_TF_3T_23",
+    "contrib_TipoEstab",
+    "contrib_bias"
+]]
 
     shap_df = shap_df.melt(id_vars='CGM')
+
+    # estou tendo problemas com esses valores, precisam ser todos transformados em numéricos, porém ao fazer a transformação ignorando os valores estranhos ele aponta somente 2 colunas, pode continuar daqui.
+
+    shap_df['value'] = pd.to_numeric(shap_df['value'], errors='coerce') 
+
+
     shap_df = shap_df.sort_values(by=['value'], ascending=False)
     shap_df['variable'] = shap_df['variable'].str.replace('contrib_', '', regex=True)
 
