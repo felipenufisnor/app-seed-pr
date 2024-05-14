@@ -36,12 +36,24 @@ async def serve(q: Q):
     await setup_app(q)
     await q.page.save()
 
+# temas de cores utilizados na página
 async def initialize_layout(q: Q):
-        q.page['meta'] = ui.meta_card(box='',
-                                      theme='kiwi')
+        q.page['meta'] = ui.meta_card(
+    box='',
+    themes=[
+        ui.theme(
+            name='tarea_color',
+            primary='#b08e3f',
+            text='#000000',
+            card='#ffffff',
+            page='#f7f6e9',
+        )
+    ],
+    theme='tarea_color'
+)
 
         q.page['header'] = ui.header_card(box='1 1 11 1',
-                title='Analise Risco de Evasão por Aluno - Secretaria da Educação do Estado',
+                title='Risco de Evasão Escolar - Secretaria da Educação do Paraná',
                 subtitle='Prova de Conceito para previsão de probabilidade de evasão escolar a partir do histórico de frequência e notas dos alunos de Londrina e Guarapuava',
                 image='https://wave.h2o.ai/img/h2o-logo.svg',
                 # color='transparent'
